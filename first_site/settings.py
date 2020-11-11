@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,7 +21,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#1t_&#%=e$@r)70e!b3-&upgt%_-=n9y9cyu=6&ws6w^*q1ear'
+#SECRET_KEY = '#1t_&#%=e$@r)70e!b3-&upgt%_-=n9y9cyu=6&ws6w^*q1ear'
+SECRET_KEY = config('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,7 +80,11 @@ WSGI_APPLICATION = 'first_site.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': config('DB_NAME', os.path.join(BASE_DIR, 'db.sqlite3')),
+        'HOST': config('DB_HOST', 'localhost'),
+        'USER': config('DB_USER', 'root'),
+        'PASS': config('DB_PASS', 'root')
     }
 }
 

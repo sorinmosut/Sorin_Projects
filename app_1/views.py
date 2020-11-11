@@ -65,12 +65,8 @@ def handle_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-
-            next_url = request.GET.get('next')
-            if next_url:
-                return HttpResponseRedirect(next_url)
-
-            return HttpResponseRedirect(reverse('app1:profile'))
+            next_url = request.GET.get('next_url', reverse('app1:profile'))
+            return HttpResponseRedirect(next_url)
 
         else:
             return render(request, 'app_1/invalid_usr_pass.html', {})
@@ -82,7 +78,12 @@ def handle_login(request):
 def profile(request):
     # if request.user.is_authenticated:
     #     return render(request, 'app_1/profile.html')
-    return render (request, 'app_1/profile.html')
+    return render(request, 'app_1/profile.html')
+
+
+@login_required(redirect_field_name='next_url', login_url='/app1/login/')
+def dummy(request):
+    return render(request, 'app_1/dummy.html')
 
 
 def handle_logout(request):
@@ -90,6 +91,3 @@ def handle_logout(request):
     return HttpResponseRedirect(reverse('app1:login'))
 
 
-@login_required
-def dummy(request):
-    return HttpResponse('dummy view')

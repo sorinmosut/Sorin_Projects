@@ -1,0 +1,7 @@
+
+<form method="post" action="{% url 'app1:login' %}? {{ request.GET.next }}">
+    {% csrf_token %}
+    <input name="username" />
+    <input type="password" name="password" />
+    <input type="submit" value="Submit" />
+</form>

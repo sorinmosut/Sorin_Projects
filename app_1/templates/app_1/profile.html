@@ -1,0 +1,9 @@
+<p>
+    is_autenticated {{ request.is_autenticated }}
+</p>
+<p>
+    auth user {{ request.user }}
+</p>
+<p>
+    <a href="{% url 'app1:logout' %}">Logout</a>
+</p>

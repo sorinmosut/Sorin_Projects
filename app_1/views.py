@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from app_1.models import MyModel
@@ -7,8 +8,10 @@ from app_1.forms import RegisterMyModel
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 
+#logger = logging.getLogger('django')
 
 def index(request):
+    #logger.info('My parameter ....')
     return render(request, 'app_1/template.html', {
         'parameter_1': 'my parameter 1'
     })
@@ -17,15 +20,19 @@ def index(request):
 def custom_route(request, int_param):
     return HttpResponse(f'custom_route {int_param}')
 
-
 class HandleModel(TemplateView):
     def get(self, request):
         form = RegisterMyModel()
+        all_models = MyModel.objects.all()
+
         return render(request, 'app_1/list.html', {
-            'form': form
+            'form': form,
+            'all_models': all_models
         })
 
     def post(self, request):
+        print('request',request)
+
         form = RegisterMyModel(request.POST)
         if form.is_valid():
             form.save()

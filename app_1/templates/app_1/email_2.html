@@ -1,0 +1,15 @@
+{% extends "mail_templated/base.tpl" %}
+
+{% block subject %}
+Hello {{ title }}
+{% endblock %}
+
+{% block body %}
+{% endblock %}
+
+{% block html %}
+<p>Hy, you've got mail !</p>
+<p>{{ message }}</p>
+<p>Click link below:</p>
+<p><a href="https://www.google.com/">Google</a></p>
+{% endblock %}

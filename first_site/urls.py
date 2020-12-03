@@ -26,4 +26,5 @@ urlpatterns = [
     path('app1/', include('app_1.urls')),
     path('api/', include('api.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
+    path('email_sending/', include('email_sending.urls'))
 ]

@@ -1,0 +1,10 @@
+<form method="post" action="{% url 'email_sending:create_mail' %}">
+    {% csrf_token %}
+   {{ form.as_p }}
+    <div>
+        <input type="submit" value="Submit" />
+    </div>
+</form>
+{% for data in all_data %}
+    <p>{{ data.subject }} {{ data.message}}</p>
+{% endfor %}

@@ -15,7 +15,7 @@ from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -28,12 +28,13 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'email_sending',
     'api',
     'rest_framework',
     'library',
@@ -45,6 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
+    'django_celery_results',
+    'mail_templated',
 ]
 
 MIDDLEWARE = [
@@ -82,14 +86,25 @@ WSGI_APPLICATION = 'first_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         'NAME': config('DB_NAME', os.path.join(BASE_DIR, 'db.sqlite3')),
+#         'HOST': config('DB_HOST', 'localhost'),
+#         'USER': config('DB_USER', 'root'),
+#         'PASS': config('DB_PASS', 'root')
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': config('DB_NAME', os.path.join(BASE_DIR, 'db.sqlite3')),
-        'HOST': config('DB_HOST', 'localhost'),
-        'USER': config('DB_USER', 'root'),
-        'PASS': config('DB_PASS', 'root')
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DB_NAME', 'first_site'),
+        'HOST': config('DB_HOST', '0.0.0.0'),
+        'USER': config('DB_USER', 'postgres'),
+        'PASSWORD': config('DB_PASS', 'postgres'),
+        'PORT': config('DB_PORT', '5432')
     }
 }
 
@@ -152,3 +167,136 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 LOGIN_URL = 'app1:login'
+
+# Celery settings
+#CELERY_BROKER_URL = 'amqps://gyegagat:iz2te4-E3PyUyCI2wVfvCag_bP2TZ2O9@roedeer.rmq.cloudamqp.com/gyegagat'
+CELERY_BROKER_URL = 'amqp://guest:guest@0.0.0.0:5672'
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_ALWAYS_EAGER=False
+CELERY_DEFAULT_QUEUE='default'
+CELERY_DEFAULT_EXCHANGE='default'
+CELERY_DEFAULT_ROUTING_KEY='default'
+
+CELERY_RESULT_BACKEND = 'django-db'
+
+# E-mail settiINGS
+
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'testmailadres1919@gmail.com'
+EMAIL_HOST_PASSWORD = 'testmailpassword1919'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'testmailadres1919@gmail.com'
+# EMAIL_HOST_PASSWORD = 'testpassword1919'
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
+
+# Logging
+# CELERYD_HIJACK_ROOT_LOGGER = False
+
+#FIRST_SITE_LOGDIR = os.path.join(PROJECT_ROOT, 'logs')
+
+LOGGING_DEFAULT_HANDLERS = ['file', 'console']# ['console', 'file', 'mail_admins']
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s|%(message)s'
+        },
+        'verbose': {
+            'format': '[%(asctime)s pid:%(process)d tid:%(thread)d][%(levelname)s/%(module)s/%(name)s: %(lineno)d] %(message)s',
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+    },
+
+    'handlers': {
+        # 'mail_admins': {
+        #     'level': 'ERROR',
+        #     'class': 'django.utils.log.AdminEmailHandler'
+        # },
+        # 'null': {
+        #     'level':'DEBUG',
+        #     'class':'logging.NullHandler',
+        # },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/django.log', # os.path.join(FIRST_SITE_LOGDIR, 'django.log'),
+            'maxBytes': 1024*1024*5, # 5MB
+            'backupCount': 5,
+            'formatter': 'simple',
+        },
+        # 'crossyn_api': {
+        #     'level':'DEBUG',
+        #     'class':'logging.handlers.RotatingFileHandler',
+        #     'filename': os.path.join(FIRST_SITE_LOGDIR, 'crossyn_api.log'),
+        #     'maxBytes': 1024*1024*5, # 5MB
+        #     'backupCount': 5,
+        #     'formatter': 'verbose',
+        # },
+    },
+
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+        },
+
+        # 'django.request': {
+        #     'handlers': LOGGING_DEFAULT_HANDLERS,
+        #     'level': 'ERROR',
+        #     'propagate': False,
+        #     'include_html': True,
+        # },
+        # 'django.security': {
+        #     'handlers': LOGGING_DEFAULT_HANDLERS,
+        #     'level': 'ERROR',
+        #     'propagate': False,
+        # },
+        # 'django.db.backends': {
+        #     'handlers': LOGGING_DEFAULT_HANDLERS,
+        #     'level': 'ERROR',
+        #     'propagate': False,
+        # },
+        # 'django.db.backends.schema': {
+        #     'handlers': LOGGING_DEFAULT_HANDLERS,
+        #     'level': 'ERROR',
+        #     'propagate': False,
+        # },
+        # 'shared.crossyn_client': {
+        #     'handlers': ['console', 'file', 'crossyn_api'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+        # 'elasticsearch': {
+        #     'handlers': ['console'],
+        #     'level': 'WARNING',
+        #     'propagate': True,
+        # },
+    }
+}
+
+# LOGIN_REDIRECT_URL = 'login_redirect'
+# LOGOUT_REDIRECT_URL = 'login'
